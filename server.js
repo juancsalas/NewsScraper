@@ -1,20 +1,18 @@
 var express = require("express");
 var logger = require("morgan");
 var mongoose = require("mongoose");
-
 var axios = require("axios");
 var cheerio = require("cheerio");
+const exphbs = require("express-handlebars");
+var app = express();
 
 var db = require("./models");
 var PORT = 3000;
 
-var app = express();
-
 // Setting Handlebars
-const exphbs = require("express-handlebars");
+
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
-
 
 app.use(logger("dev"));
 app.use(express.urlencoded({ extended: true }));
@@ -24,17 +22,38 @@ app.use(express.static("public"));
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
 mongoose.connect(MONGODB_URI);
 
+// This one is good -- Renders Home Page
 app.get("/", function(req,res) {
-    res.render('index', {
-      layout: 'about-main'
+    res.render("index", {
+      layout: "scraper-main"
     });
 });
 
+app.get("/savedPage", function(req, res){
+    res.render("savedArticles/savedArticles", {
+        layout: "save-main"
+      });
 
+})
+
+
+// This one is good -- Renders Saved Articles Page
+app.get("/savedArticles", function(req, res){
+  
+    db.Article.find({"saved" : true})
+    .then(function(dbSavedArticle){
+        res.json(dbSavedArticle);
+    })
+    .catch(function(err){
+        res.json(err);
+    });
+
+})
+
+// This one is good - Does the scraping
 app.get("/scrape", function(req, res){
     axios.get("https://www.npr.org/sections/news/").then(function(response){
                 
-
         var $ = cheerio.load(response.data);
 
         $("article").each(function(i, element){
@@ -74,6 +93,7 @@ app.get("/scrape", function(req, res){
     });
 });
 
+// This one is good -- Route to the JSON
 app.get("/articles", function(req, res){
     
     db.Article.find({})
@@ -84,6 +104,8 @@ app.get("/articles", function(req, res){
         res.json(err);
     });
 });
+
+
 
 app.get("/articles/:id", function(req, res){
 
@@ -98,6 +120,36 @@ app.get("/articles/:id", function(req, res){
         res.json(err);
     });
 });
+
+app.put("/articles/:id", function(req, res){
+    
+    var id = req.params.id;
+
+    db.Article.updateOne({"_id":id},
+        {$set:
+            { saved : true }
+        }
+    )
+    .then(function(dbArticle){
+        res.json(dbArticle);        
+    })
+    .catch(function(err){
+        res.json(err);
+    });
+});
+
+
+// app.get("/savedArticles", function(req, res){
+    
+//     db.Article.find({"saved" : true})
+//     .then(function(dbSavedArticle){
+//         res.json(dbSavedArticle);
+//     })
+//     .catch(function(err){
+//         res.json(err);
+//     });
+// });
+
 
 app.post("/articles/:id", function(req, res){
 
@@ -117,21 +169,16 @@ app.post("/articles/:id", function(req, res){
 
 // Delete all articles in JSON
 app.get("/clearall", function(req, res) {
-    // Remove every note from the notes collection
     db.Article.remove({}, function(error, response) {
-      // Log any errors to the console
-      if (error) {
-        res.send(error);
-      }
-      else {
-        // Otherwise, send the mongojs response to the browser
-        // This will fire off the success function of the ajax request
-        res.send(response);
-      }
+        if (error) {
+            res.send(error);
+        }
+        else {
+            res.send(response);
+        }
     });
-  });
+});
 
 app.listen(PORT, function(){
     console.log("App running on port " + PORT + "!");
-    
 })
