@@ -2,17 +2,14 @@ var mongoose = require("mongoose");
 
 var Schema = mongoose.Schema;
 
-var CommentSchema = new Schema ({
-    name: {
-        type: String,
-        required: true,
-    },
-    body: {
+var CommentsSchema = new Schema ({
+
+    comment: {
         type: String,
         required: true
-    }
+    } 
 });
 
-var Comments = mongoose.model("Comment", CommentSchema);
+var Comments = mongoose.model("Comments", CommentsSchema);
 
 module.exports = Comments;

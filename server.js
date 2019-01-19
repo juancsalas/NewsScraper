@@ -22,22 +22,19 @@ app.use(express.static("public"));
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
 mongoose.connect(MONGODB_URI);
 
-// This one is good -- Renders Home Page
+// Renders Home Page
 app.get("/", function(req,res) {
-    res.render("index", {
-      layout: "scraper-main"
-    });
+    res.render("index");
 });
 
+// Renders Save Page
 app.get("/savedPage", function(req, res){
     res.render("savedArticles/savedArticles", {
         layout: "save-main"
-      });
-
+    });
 })
 
-
-// This one is good -- Renders Saved Articles Page
+// API for Saved Articles
 app.get("/savedArticles", function(req, res){
   
     db.Article.find({"saved" : true})
@@ -47,10 +44,9 @@ app.get("/savedArticles", function(req, res){
     .catch(function(err){
         res.json(err);
     });
-
 })
 
-// This one is good - Does the scraping
+// Does the scrapping
 app.get("/scrape", function(req, res){
     axios.get("https://www.npr.org/sections/news/").then(function(response){
                 
@@ -93,7 +89,7 @@ app.get("/scrape", function(req, res){
     });
 });
 
-// This one is good -- Route to the JSON
+// JSON of all scraped articles
 app.get("/articles", function(req, res){
     
     db.Article.find({})
@@ -105,59 +101,50 @@ app.get("/articles", function(req, res){
     });
 });
 
-
-
-app.get("/articles/:id", function(req, res){
-
-    var id = req.params.id;
-
-    db.Article.findOne({"_id":id})
-    .populate("Comments")
-    .then(function(dbArticle){
-        res.json(dbArticle);
-    })
-    .catch(function(err){
-        res.json(err);
-    });
-});
-
+//Sets the articles to saved = true
+//Adds them to save page
 app.put("/articles/:id", function(req, res){
     
     var id = req.params.id;
 
-    db.Article.updateOne({"_id":id},
-        {$set:
-            { saved : true }
-        }
-    )
+    db.Article.findOneAndUpdate({"_id":id},
+        {$set: { saved : true }
+    })
     .then(function(dbArticle){
-        res.json(dbArticle);        
+        res.json(dbArticle);       
     })
     .catch(function(err){
         res.json(err);
-    });
+    })
+});
+
+//Sets saved articles to saved = false
+//Removes from saved page
+app.put("/savedArticles/:id", function(req, res){
+    
+    var id = req.params.id;
+
+    db.Article.findOneAndUpdate({"_id":id},
+        {$set: { saved : false }
+    })
+    .then(function(dbArticle){
+        res.json(dbArticle);       
+    })
+    .catch(function(err){
+        res.json(err);
+    })
 });
 
 
-// app.get("/savedArticles", function(req, res){
-    
-//     db.Article.find({"saved" : true})
-//     .then(function(dbSavedArticle){
-//         res.json(dbSavedArticle);
-//     })
-//     .catch(function(err){
-//         res.json(err);
-//     });
-// });
-
-
+// creates and adds comment id to articles in API
 app.post("/articles/:id", function(req, res){
 
     var id = req.params.id;
 
     db.Comments.create(req.body)
     .then(function(dbComments){
-        return db.Article.findOneAndUpdate({_id:id}, {comments: dbComments._id}, {new:true});
+
+        return db.Article.findOneAndUpdate({"_id" : id}, {comments: dbComments._id}, {new:true});
     })
     .then(function(dbArticle){
         res.join(dbArticle);
@@ -167,7 +154,62 @@ app.post("/articles/:id", function(req, res){
     });
 });
 
-// Delete all articles in JSON
+//Populates comments to all articles in API
+app.get("/articles/:id", function(req, res){
+
+    var id = req.params.id;    
+
+    db.Article.findOne({"_id":id})
+    .populate("comments")
+    .then(function(dbArticle){
+        res.json(dbArticle);
+    })
+    .catch(function(err){
+        res.json(err);
+    });
+});
+
+//Populates savedArticles API with comments
+//CANT FIGURE THIS OUT!!
+app.get("/savedArticles/:id", function(req, res){
+    
+    var id = req.params.id;
+  
+    db.Article.findOne({"_id" : id})
+    .populate("comments")
+    .then(function(dbSavedArticle){
+        res.json(dbSavedArticle);
+    })
+    .catch(function(err){
+        res.json(err);
+    });
+})
+
+app.get("/articleComments", function(req, res){
+  
+    db.Comments.find({})
+    .then(function(dbComments){
+        res.json(dbComments);
+    })
+    .catch(function(err){
+        res.json(err);
+    });
+})
+
+app.delete("/deleteComment", function(req, res){
+
+    var commentID = req.params.id;
+
+    dbComments.remove({"id" : commentID})
+    .then(function(dbComments){
+        res.json(dbComments);
+    })
+    .catch(function(err){
+        res.json(err);
+    })
+})
+
+// Deletes all articles that were scraped from API
 app.get("/clearall", function(req, res) {
     db.Article.remove({}, function(error, response) {
         if (error) {
@@ -179,6 +221,9 @@ app.get("/clearall", function(req, res) {
     });
 });
 
+
 app.listen(PORT, function(){
     console.log("App running on port " + PORT + "!");
 })
+
+
