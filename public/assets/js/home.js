@@ -1,17 +1,20 @@
 $(document).ready(function () {
 
+    // Event listener that initiates the scrape
     $("#scrape").on("click", function(e){
         e.preventDefault();
         newScrape()
         setTimeout(renderScrape,2000)
     });     
 
+    // Functons that conects to server file to do the scraping
     function newScrape() {
         $.getJSON("/scrape", function (){
             console.log("scrapte Complete.");
         })
     }
 
+    // Renders all the articles from the scrape to the DOM
     function renderScrape () {
 
         $.getJSON("/articles", function(data){
@@ -33,11 +36,13 @@ $(document).ready(function () {
                 $(".articleContainer").prepend(articleRow)
             }
 
+            // Event listener that saves articles to the save page
             $(".saveArticle").on("click", function(e){
                 e.preventDefault();
                 saveArticle(this)
             });
 
+            // Event listener that deletes all articles in the API
             $("#deleteAll").on("click", function(e){
                 e.preventDefault();
                 deleteAll()
@@ -46,8 +51,9 @@ $(document).ready(function () {
         });
     }
 
+
     function saveArticle (data) {
-        
+
         var thisId = $(data).attr("data-id")        
 
         $.ajax({

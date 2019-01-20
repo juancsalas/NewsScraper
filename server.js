@@ -27,26 +27,14 @@ app.get("/", function(req,res) {
     res.render("index");
 });
 
-// Renders Save Page
+// Renders the page all your saved articles
 app.get("/savedPage", function(req, res){
     res.render("savedArticles/savedArticles", {
         layout: "save-main"
     });
 })
 
-// API for Saved Articles
-app.get("/savedArticles", function(req, res){
-  
-    db.Article.find({"saved" : true})
-    .then(function(dbSavedArticle){
-        res.json(dbSavedArticle);
-    })
-    .catch(function(err){
-        res.json(err);
-    });
-})
-
-// Does the scrapping
+// The code block that does all the scraping
 app.get("/scrape", function(req, res){
     axios.get("https://www.npr.org/sections/news/").then(function(response){
                 
@@ -89,7 +77,7 @@ app.get("/scrape", function(req, res){
     });
 });
 
-// JSON of all scraped articles
+// Route that holds the API/JSON for all the articles scraped
 app.get("/articles", function(req, res){
     
     db.Article.find({})
@@ -101,8 +89,19 @@ app.get("/articles", function(req, res){
     });
 });
 
-//Sets the articles to saved = true
-//Adds them to save page
+// Route that holds the API/JSON for all the saved articles
+app.get("/savedArticles", function(req, res){
+  
+    db.Article.find({"saved" : true})
+    .then(function(dbSavedArticle){
+        res.json(dbSavedArticle);
+    })
+    .catch(function(err){
+        res.json(err);
+    });
+})
+
+// Changes an article's key value 'saved' false to true in order to render it onto the saved page
 app.put("/articles/:id", function(req, res){
     
     var id = req.params.id;
@@ -118,8 +117,7 @@ app.put("/articles/:id", function(req, res){
     })
 });
 
-//Sets saved articles to saved = false
-//Removes from saved page
+// Changes an article's key value 'saved' from true to false and removes them from the save page
 app.put("/savedArticles/:id", function(req, res){
     
     var id = req.params.id;
@@ -135,8 +133,7 @@ app.put("/savedArticles/:id", function(req, res){
     })
 });
 
-
-// creates and adds comment id to articles in API
+// Creates and adds comment ID to the article object
 app.post("/articles/:id", function(req, res){
 
     var id = req.params.id;
@@ -169,8 +166,7 @@ app.get("/articles/:id", function(req, res){
     });
 });
 
-//Populates savedArticles API with comments
-//CANT FIGURE THIS OUT!!
+//Populates API of saved articles with respective comments and renders them to modal
 app.get("/savedArticles/:id", function(req, res){
     
     var id = req.params.id;
@@ -185,6 +181,7 @@ app.get("/savedArticles/:id", function(req, res){
     });
 })
 
+// Holds the comment database of comments for all articles
 app.get("/articleComments", function(req, res){
   
     db.Comments.find({})
@@ -196,6 +193,7 @@ app.get("/articleComments", function(req, res){
     });
 })
 
+// Removes a specific comment from respective article
 app.get("/articleComments/:id", function(req, res){
 
     var commentID = req.params.id;
@@ -221,7 +219,7 @@ app.get("/clearAll", function(req, res) {
     });
 });
 
-// Deletes all comments in the comment api
+// Deletes all comments from all article in the comment database
 app.get("/clearComments", function(req, res) {
     db.Comments.remove({}, function(error, response) {
         if (error) {
