@@ -196,11 +196,11 @@ app.get("/articleComments", function(req, res){
     });
 })
 
-app.delete("/deleteComment", function(req, res){
+app.get("/articleComments/:id", function(req, res){
 
     var commentID = req.params.id;
 
-    dbComments.remove({"id" : commentID})
+    db.Comments.remove({"_id" : commentID})
     .then(function(dbComments){
         res.json(dbComments);
     })
@@ -210,8 +210,20 @@ app.delete("/deleteComment", function(req, res){
 })
 
 // Deletes all articles that were scraped from API
-app.get("/clearall", function(req, res) {
+app.get("/clearAll", function(req, res) {
     db.Article.remove({}, function(error, response) {
+        if (error) {
+            res.send(error);
+        }
+        else {
+            res.send(response);
+        }
+    });
+});
+
+// Deletes all comments in the comment api
+app.get("/clearComments", function(req, res) {
+    db.Comments.remove({}, function(error, response) {
         if (error) {
             res.send(error);
         }

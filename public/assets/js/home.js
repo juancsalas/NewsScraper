@@ -28,11 +28,9 @@ $(document).ready(function () {
                 + "<button type='button' data-id='" + data[i]._id + "'"
                 + "class='btn btn-primary saveArticle'>Save Article</button></div></div>"
 
-
                 var articleRow = $("#articleRow").append(articleCard)
-            
+                
                 $(".articleContainer").prepend(articleRow)
-
             }
 
             $(".saveArticle").on("click", function(e){
@@ -50,9 +48,7 @@ $(document).ready(function () {
 
     function saveArticle (data) {
         
-        var thisId = $(data).attr("data-id")
-        console.log(thisId);
-        
+        var thisId = $(data).attr("data-id")        
 
         $.ajax({
             method: "PUT",

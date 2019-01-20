@@ -3,7 +3,6 @@ $(document).ready(function () {
     function renderSaved () {
 
         $.getJSON("/savedArticles", function(data){
-                    
 
             for (let i = 0; i < data.length; i++) {
 
@@ -13,7 +12,8 @@ $(document).ready(function () {
                 + "href='" + data[i].link + "' target='_blank '>" + data[i].title + "</a>"
                 + "<p class='card-text' articleSummary'>" + data[i].summary+ "</p>"
                 + "<p class='card-text articleCategory'>Section: " + data[i].category + "</p>"
-                + "<button type='button' class='btn btn-primary mx-2 commentsButton' data-toggle='modal' data-target='#exampleModal'>Comments</button>"        
+                + "<button type='button' class='btn btn-primary mx-2 commentsButton' data-id='" + data[i]._id + "' "
+                + "data-toggle='modal' data-target='#exampleModal'>Comments</button>"        
                 + "<button type='button' class='btn btn-primary mx-2 deleteArticle'>Delete</button></div></div>"
 
                 var savedArticleRow = $("#savedArticleRow").append(savedArticleCard)
@@ -26,39 +26,52 @@ $(document).ready(function () {
                 deleteArticle($(".articleID").attr("data-id"))
             });
 
-            $(".addComment").on("click", function(e){
-                e.preventDefault();
-                addComment($(".articleID").attr("data-id"))
-            })
-
             $(".commentsButton").on("click", function(e){
-
                 e.preventDefault();
+
+                var id = $(this).attr("data-id");
+
+                $(".commentList").empty();
+                $(".commentList").text("No Comments");
                 
-                var id = $(".articleID").attr("data-id");
-                console.log(id);
-            
+                $(".modal-footer").empty()
+                var addButton = "<button type='button' data-dismiss='modal' data-id='" + id + "' class='btn btn-primary addComment'>Add Comment</button>"
+                + "<button type='button' class='btn btn-secondary' data-dismiss='modal'>Close</button>"
+                $(".modal-footer").append(addButton)
+
                 $.ajax({
                     method: "GET",
                     url: "/savedArticles/" + id
                 })
                 .then(function(data) {
+                
+                    if (data.comments.comment){
 
-                    var comment = "<li data-id='" + data.comments._id + "' class='comment'>" + data.comments.comment
-                    + "<button type='button' class='close deleteComment' data-dismiss='modal' aria-label='Close'>"
-                    + "<span aria-hidden='true'>&times;</span></button></li>"
-                    
-                    $(".commentList").append(comment)
-                          
+                        $(".commentList").empty();
+
+                        var comment = "<li data-id='" + data.comments._id + "' class='currentComment'>" + data.comments.comment
+                        + "<button type='button' data-dismiss='modal' data-id='" + data.comments._id 
+                        + "'class='close deleteComment'>x</button></li>"
+
+                        $(".commentList").append(comment)                        
+                    }
+                
+                    $(".deleteComment").on("click", function(e){
+                        e.preventDefault();
+                        id = $(this).attr("data-id")
+                        console.log(id); 
+    
+                        deleteComment(id);
+                    })
                 })
 
-                $(".comments").on("click", function(e){
+                $(".addComment").on("click", function(e){
                     e.preventDefault();
-                    deleteComment(this);
-                })
-                    
-            });
 
+                    id = $(this).attr("data-id")
+                    addComment(id)       
+                })     
+            });
         });
     }
 
@@ -70,28 +83,37 @@ $(document).ready(function () {
         })
 
         location.reload()
-
     }
 
     function addComment (entry) {
-
+        
+        console.log(entry);
+    
         $.ajax({
             method: "POST",
             url: "/articles/" + entry,
             data: { comment: $("#message-text").val() }
         })
         .then(function(data) {
-            // console.log(data);
-            $("#message-text").empty();
+            $(".commentInput").val("");
         })
         .catch(function(err){
             res.json(err);
         });
-        
     }
 
     function deleteComment (data) {
-        
+
+        $.ajax({
+            method: "GET",
+            url: "/articleComments/" + data,
+        })
+        .then(function(data) {
+            console.log("Comment Deleted.");
+        })
+        .catch(function(err){
+            res.json(err);
+        });
     }
 
 

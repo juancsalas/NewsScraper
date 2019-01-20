@@ -16,7 +16,7 @@ $(document).ready(function () {
             for (let i = 0; i < data.length; i++) {
 
                 var comment = "<li data-id='" + data[i].comments._id + "' class='comment'>" + data[i].comments[0].comment + "</li>"
-                + "<button type='button' class='close deleteComment' data-dismiss='modal' aria-label='Close'>"
+                + "<button type='button' class='close deleteComment' aria-label='Close'>"
                 + "<span aria-hidden='true'>&times;</span></button>"     
 
                 $(".commentList").append(comment)
