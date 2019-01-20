@@ -9,13 +9,13 @@ $(document).ready(function () {
 
                 var savedArticleCard = "<div class='col-lg-4 my-4 articleCard'>"
                 + "<div class='card' style='width: 18rem;'><img src='" + data[i].image + "' class='card-img-top' alt=''>" 
-                + "<div class='card-body'> <a class='card-title articleID articleTitle' data-id='" + data[i]._id + "' "
+                + "<div class='card-body'> <a class='card-title font-weight-bold articleID articleTitle' data-id='" + data[i]._id + "' "
                 + "href='" + data[i].link + "' target='_blank '>" + data[i].title + "</a>"
-                + "<p class='card-text' articleSummary'>" + data[i].summary+ "</p>"
+                + "<p class='card-text articleSummary'>" + data[i].summary+ "</p>"
                 + "<p class='card-text articleCategory'>Section: " + data[i].category + "</p>"
-                + "<button type='button' class='btn btn-primary mx-2 commentsButton' data-id='" + data[i]._id + "' "
+                + "<button type='button' class='btn btn-info mx-2 commentsButton' data-id='" + data[i]._id + "' "
                 + "data-toggle='modal' data-target='#exampleModal'>Comments</button>"        
-                + "<button type='button' data-id='" + data[i]._id + "' class='btn btn-primary mx-2 deleteArticle'>Delete"
+                + "<button type='button' data-id='" + data[i]._id + "' class='btn btn-danger mx-2 deleteArticle'>Delete"
                 + "</button></div></div>"
 
                 var savedArticleRow = $("#savedArticleRow").append(savedArticleCard)

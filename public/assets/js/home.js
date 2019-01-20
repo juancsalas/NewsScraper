@@ -9,6 +9,7 @@ $(document).ready(function () {
 
     // Functons that conects to server file to do the scraping
     function newScrape() {
+        
         $.getJSON("/scrape", function (){
             console.log("scrapte Complete.");
         })
@@ -19,17 +20,18 @@ $(document).ready(function () {
 
         $.getJSON("/articles", function(data){
 
+
             for (let i = 0; i < data.length; i++) {
                 
                 var articleCard = "<div class='col-lg-4 my-4 articleCard'>"
                 + "<div class='card' style='width: 18rem;'><img src='" + data[i].image
                 + "' class='card-img-top' alt=''> <div class='card-body'>"
-                + "<a class='card-title articleTitle' href='" + data[i].link + "target='_blank ' "
+                + "<a class='card-title font-weight-bold articleTitle' href='" + data[i].link + "' target='_blank ' "
                 + "data-id='" + data[i]._id + "'>" + data[i].title + "</a>"
-                + "<p class='card-text' articleSummary'>" + data[i].summary + "</p>"
+                + "<p class='card-text articleSummary'>" + data[i].summary + "</p>"
                 + "<p class='card-text articleCategory'>Section: " + data[i].category + "</p>"
                 + "<button type='button' data-id='" + data[i]._id + "'"
-                + "class='btn btn-primary saveArticle'>Save Article</button></div></div>"
+                + "class='btn btn-success saveArticle'>Save Article</button></div></div>"
 
                 var articleRow = $("#articleRow").append(articleCard)
                 
@@ -53,6 +55,8 @@ $(document).ready(function () {
 
 
     function saveArticle (data) {
+
+
 
         var thisId = $(data).attr("data-id")        
 
