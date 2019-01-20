@@ -14,7 +14,8 @@ $(document).ready(function () {
                 + "<p class='card-text articleCategory'>Section: " + data[i].category + "</p>"
                 + "<button type='button' class='btn btn-primary mx-2 commentsButton' data-id='" + data[i]._id + "' "
                 + "data-toggle='modal' data-target='#exampleModal'>Comments</button>"        
-                + "<button type='button' class='btn btn-primary mx-2 deleteArticle'>Delete</button></div></div>"
+                + "<button type='button' data-id='" + data[i]._id + "' class='btn btn-primary mx-2 deleteArticle'>Delete"
+                + "</button></div></div>"
 
                 var savedArticleRow = $("#savedArticleRow").append(savedArticleCard)
 
@@ -22,8 +23,9 @@ $(document).ready(function () {
             }
 
             $(".deleteArticle").on("click", function(e){
+                var id = $(this).attr("data-id");
                 e.preventDefault();
-                deleteArticle($(".articleID").attr("data-id"))
+                deleteArticle(id)
             });
 
             $(".commentsButton").on("click", function(e){
