@@ -5,11 +5,8 @@ var axios = require("axios");
 var cheerio = require("cheerio");
 const exphbs = require("express-handlebars");
 var app = express();
-
 var db = require("./models");
 var PORT = process.env.PORT || 3000;
-
-// Setting Handlebars
 
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
@@ -22,19 +19,16 @@ app.use(express.static("public"));
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
 mongoose.connect(MONGODB_URI);
 
-// Renders Home Page
 app.get("/", function(req,res) {
     res.render("index");
 });
 
-// Renders the page all your saved articles
 app.get("/savedPage", function(req, res){
     res.render("savedArticles/savedArticles", {
         layout: "save-main"
     });
 })
 
-// The code block that does all the scraping
 app.get("/scrape", function(req, res){
     axios.get("https://www.npr.org/sections/news/").then(function(response){
                 
@@ -42,7 +36,6 @@ app.get("/scrape", function(req, res){
 
         $("article").each(function(i, element){
             var result = {};
-
             result.title = $(this)
             .find($(".title"))
             .text();
@@ -77,9 +70,7 @@ app.get("/scrape", function(req, res){
     });
 });
 
-// Route that holds the API/JSON for all the articles scraped
-app.get("/articles", function(req, res){
-    
+app.get("/articles", function(req, res){    
     db.Article.find({})
     .then(function(dbArticle){
         res.json(dbArticle);
@@ -89,9 +80,7 @@ app.get("/articles", function(req, res){
     });
 });
 
-// Route that holds the API/JSON for all the saved articles
-app.get("/savedArticles", function(req, res){
-  
+app.get("/savedArticles", function(req, res){  
     db.Article.find({"saved" : true})
     .then(function(dbSavedArticle){
         res.json(dbSavedArticle);
@@ -101,7 +90,6 @@ app.get("/savedArticles", function(req, res){
     });
 })
 
-// Changes an article's key value 'saved' false to true in order to render it onto the saved page
 app.put("/articles/:id", function(req, res){
     
     var id = req.params.id;
@@ -117,7 +105,6 @@ app.put("/articles/:id", function(req, res){
     })
 });
 
-// Changes an article's key value 'saved' from true to false and removes them from the save page
 app.put("/savedArticles/:id", function(req, res){
     
     var id = req.params.id;
@@ -133,7 +120,6 @@ app.put("/savedArticles/:id", function(req, res){
     })
 });
 
-// Creates and adds comment ID to the article object
 app.post("/articles/:id", function(req, res){
 
     var id = req.params.id;
@@ -151,7 +137,6 @@ app.post("/articles/:id", function(req, res){
     });
 });
 
-//Populates comments to all articles in API
 app.get("/articles/:id", function(req, res){
 
     var id = req.params.id;    
@@ -166,7 +151,6 @@ app.get("/articles/:id", function(req, res){
     });
 });
 
-//Populates API of saved articles with respective comments and renders them to modal
 app.get("/savedArticles/:id", function(req, res){
     
     var id = req.params.id;
@@ -181,7 +165,6 @@ app.get("/savedArticles/:id", function(req, res){
     });
 })
 
-// Holds the comment database of comments for all articles
 app.get("/articleComments", function(req, res){
   
     db.Comments.find({})
@@ -193,7 +176,6 @@ app.get("/articleComments", function(req, res){
     });
 })
 
-// Removes a specific comment from respective article
 app.get("/articleComments/:id", function(req, res){
 
     var commentID = req.params.id;
@@ -207,7 +189,6 @@ app.get("/articleComments/:id", function(req, res){
     })
 })
 
-// Deletes all articles that were scraped from API
 app.get("/clearAll", function(req, res) {
     db.Article.remove({}, function(error, response) {
         if (error) {
@@ -219,7 +200,6 @@ app.get("/clearAll", function(req, res) {
     });
 });
 
-// Deletes all comments from all article in the comment database
 app.get("/clearComments", function(req, res) {
     db.Comments.remove({}, function(error, response) {
         if (error) {
@@ -230,7 +210,6 @@ app.get("/clearComments", function(req, res) {
         }
     });
 });
-
 
 app.listen(PORT, function(){
     console.log("App running on port " + PORT + "!");
