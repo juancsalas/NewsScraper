@@ -19,7 +19,7 @@ As previously mentioned, I used [Handlebars](https://github.com/wycats/handlebar
 ### Deployment
 It is important that you connect to [MongoDB](https://github.com/mongodb/mongo) before trying to run the application. Enter ```$ mongod``` in your terminal.
 
-Once the repo is cloned you must input ```$ npm install``` in the root directory. Once all dependencies and modules are installed, you can deploy the app with ```$mnpm start```.
+Once the repo is cloned you must input ```$ npm install``` in the root directory. Once all dependencies and modules are installed, you can deploy the app with ```$ npm start```.
 
 The app structue is as follows:
 ```
